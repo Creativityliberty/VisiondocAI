@@ -38,12 +38,11 @@ export enum AppStep {
 }
 
 export enum ResultTab {
+  MISSION = 'mission',
+  AICORE = 'ai-core',
+  INFRA = 'infra',
   SOURCE = 'source',
   RULES = 'rules',
-  AICORE = 'ai-core',
-  DEPLOY = 'deploy',
-  SPEC = 'spec',
   PREVIEW = 'preview',
-  CHAT = 'chat',
-  EDIT = 'edit'
+  CHAT = 'chat'
 }
