@@ -1,0 +1,8 @@
+{
+  "name": "VisionDoc AI",
+  "description": "Transform UI screenshots into comprehensive design specifications and AI-ready Cursor rules using advanced Gemini vision models.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
