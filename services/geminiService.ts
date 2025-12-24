@@ -11,21 +11,24 @@ const getBase64Data = (base64: string): string => {
   return base64.split(',')[1] || base64;
 };
 
-// Injection du code utilitaire réel du starter pour garantir que l'export fonctionne
-const STARTER_UTILS_CODE = `import { type ClassValue, clsx } from 'clsx';
+const FOUNDRY_CORE_UTILS = `import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function convertToRgba({ color, opacity }: { color: string; opacity: number; }): string {
-  if (!color) return \`rgba(177, 177, 177, \${opacity})\`;
-  const hex = color.replace('#', '');
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
-  return \`rgba(\${r}, \${g}, \${b}, \${opacity})\`;
+/**
+ * Nümtema Foundry Core Utility
+ * Injects extracted design tokens into CSS variables
+ */
+export function foundryTheme(tokens: any) {
+  if (typeof document === 'undefined') return tokens;
+  const root = document.documentElement;
+  Object.entries(tokens.colors || {}).forEach(([key, val]) => {
+    root.style.setProperty(\`--foundry-\${key}\`, val as string);
+  });
+  return tokens;
 }`;
 
 export const analyzeUIScreenshot = async (base64Image: string): Promise<{ 
@@ -47,22 +50,22 @@ export const analyzeUIScreenshot = async (base64Image: string): Promise<{
             }
           },
           {
-            text: `Tu es l'ingénieur système de VisionDoc AI. Ta mission est d'extraire TOUS les détails de cette image UI avec une précision chirurgicale.
+            text: `Tu es l'Intelligence Suprême de Nümtema Foundry. 
+            MISSION : Transformer cette capture d'écran en un SaaS complet, prêt pour VERCEL et GITHUB.
             
-            1. RECONSTRUCTION : Tu dois mapper l'interface sur les composants du starter pack (LandingHeader, LandingFooter, LandingPrimaryImageCtaSection, etc.).
+            1. ANALYSE PROFONDE : Détecte les composants (Navbar, Hero, Bento, Stats, Testimonials, Footer).
+            2. LOGIQUE MÉTIER : Déduis le but du SaaS (Fintech, EdTech, Tool, etc.) et prépare la structure de données.
+            3. DÉPLOIEMENT : Génère un guide 'FOUNDRY_MANIFESTO.md' incluant :
+               - Commandes de déploiement Vercel.
+               - Workflow GitHub Actions pour le CI/CD.
+               - Instructions pour lier le domaine.
+            4. STRUCTURE PROJET :
+               - 'app/layout.tsx' & 'app/page.tsx' (Next.js 15 App Router)
+               - 'components/foundry-ui/' (Composants reconstruits avec Tailwind)
+               - 'data/config.ts' (Metadata et Tokens extraits)
+               - '.cursor/rules/foundry.mdc' (Instructions pour l'IA dev)
             
-            2. TOKENS : Identifie la couleur primaire (hex), le radius exact (ex: 40px), la typographie (nom de fonte le plus proche) et les espacements.
-            
-            3. AGENT MISSION : Produit un fichier AGENT_MISSION.md qui est un plan de vol pour un agent IA (Cursor). Il doit expliquer comment vérifier chaque composant avec mcp__ide__getDiagnostics.
-            
-            4. STRUCTURE PROJET : Génère les fichiers suivants dans 'projectFiles' :
-               - 'data/config/colors.js' (La palette sémantique complète extraite)
-               - 'data/config/metadata.js' (Titres et descriptions extraits)
-               - 'app/page.tsx' (La page assemblée avec les composants landing)
-               - '.cursor/rules/ui-system.mdc' (Règles spécifiques au design détecté)
-               - 'tailwind.config.ts' (Avec les tokens injectés)
-            
-            Retourne un JSON valide.`
+            Réponds EXCLUSIVEMENT en JSON.`
           }
         ]
       }
@@ -81,9 +84,9 @@ export const analyzeUIScreenshot = async (base64Image: string): Promise<{
                 properties: { primary: {type: Type.STRING}, background: {type: Type.STRING}, surface: {type: Type.STRING}, text: {type: Type.STRING}, accent: {type: Type.STRING} },
                 required: ["primary", "background", "surface", "text", "accent"]
               },
-              radii: { type: Type.OBJECT, properties: { card: {type: Type.STRING}, button: {type: Type.STRING} }, required: ["card", "button"] },
-              typography: { type: Type.OBJECT, properties: { fontFamily: {type: Type.STRING}, baseSize: {type: Type.STRING} }, required: ["fontFamily", "baseSize"] },
-              spacing: { type: Type.OBJECT, properties: { gap: {type: Type.STRING} }, required: ["gap"] }
+              radii: { type: Type.OBJECT, properties: { card: {type: Type.STRING}, button: {type: Type.STRING}, input: {type: Type.STRING} }, required: ["card", "button", "input"] },
+              typography: { type: Type.OBJECT, properties: { fontFamily: {type: Type.STRING}, baseSize: {type: Type.STRING}, headingWeight: {type: Type.STRING} }, required: ["fontFamily", "baseSize", "headingWeight"] },
+              spacing: { type: Type.OBJECT, properties: { base: {type: Type.STRING}, gap: {type: Type.STRING} }, required: ["base", "gap"] }
             }, 
             required: ["colors", "radii", "typography", "spacing"]
           },
@@ -106,8 +109,7 @@ export const analyzeUIScreenshot = async (base64Image: string): Promise<{
   const parsed = JSON.parse(response.text || "{}");
   const filesRecord: Record<string, string> = {};
   
-  // On injecte les utilitaires de base systématiquement
-  filesRecord['lib/utils.ts'] = STARTER_UTILS_CODE;
+  filesRecord['lib/foundry-utils.ts'] = FOUNDRY_CORE_UTILS;
   
   if (Array.isArray(parsed.projectFiles)) {
     parsed.projectFiles.forEach((file: { path: string, content: string }) => {
@@ -115,28 +117,8 @@ export const analyzeUIScreenshot = async (base64Image: string): Promise<{
     });
   }
 
-  // On s'assure que les specs et rules sont là
-  filesRecord['AGENT_MISSION.md'] = parsed.spec;
-  filesRecord['.cursor/rules/ui-system.mdc'] = parsed.rules;
+  filesRecord['FOUNDRY_MANIFESTO.md'] = parsed.spec;
+  filesRecord['.cursor/rules/foundry-core.mdc'] = parsed.rules;
 
   return { ...parsed, projectFiles: filesRecord };
-};
-
-export const chatWithUI = async (prompt: string, base64Image?: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const parts: any[] = [{ text: prompt }];
-  if (base64Image) {
-    parts.push({
-      inlineData: { mimeType: getMimeType(base64Image), data: getBase64Data(base64Image) }
-    });
-  }
-  const response = await ai.models.generateContent({
-    model: "gemini-3-pro-preview",
-    contents: [{ parts }],
-    config: {
-      systemInstruction: "Tu es l'Expert VisionDoc. Tu aides à implémenter le design extrait dans le starter pack pageai-pro.",
-      thinkingConfig: { thinkingBudget: 8192 }
-    }
-  });
-  return response.text || "Analyse en cours...";
 };

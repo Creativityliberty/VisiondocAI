@@ -1,6 +1,6 @@
 {
-  "name": "VisionDoc AI",
-  "description": "Transform UI screenshots into comprehensive design specifications and AI-ready Cursor rules using advanced Gemini vision models.",
+  "name": "Foundry OS | VisionDoc",
+  "description": "Ideas to SaaS Deploy. La forge intelligente pour transformer vos visions UI en architectures SaaS prêtes au déploiement.",
   "requestFramePermissions": [
     "camera",
     "microphone"
