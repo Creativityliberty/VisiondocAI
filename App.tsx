@@ -38,7 +38,9 @@ import {
   Globe,
   Focus,
   Database,
-  CloudUpload
+  CloudUpload,
+  Github,
+  Server
 } from 'lucide-react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import JSZip from 'jszip';
@@ -56,55 +58,53 @@ const RealScanOverlay: React.FC<{ progress: number }> = ({ progress }) => (
     animate={{ opacity: 1 }}
     className="absolute inset-0 z-20 pointer-events-none overflow-hidden"
   >
-    {/* Scanning Laser Line with Glow */}
     <motion.div 
       animate={{ top: ["0%", "100%", "0%"] }}
       transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
       className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#E6644C] to-transparent shadow-[0_0_25px_rgba(230,100,76,0.8)] z-30"
     />
     
-    {/* Digital Grain & Grid Overlay */}
     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay" />
     <div className="absolute inset-0 bg-[linear-gradient(rgba(230,100,76,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(230,100,76,0.03)_1px,transparent_1px)] bg-[size:20px_20px]" />
 
-    {/* Dynamic Intelligence Boxes */}
     <AnimatePresence>
       {progress > 15 && (
         <motion.div 
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: [0, 1, 0.4], scale: [0.8, 1, 1] }}
-          className="absolute top-[15%] left-[20%] w-48 h-16 border border-[#E6644C] rounded-lg bg-black/40 backdrop-blur-sm p-2"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="absolute top-[15%] left-[10%] p-4 bg-black/60 backdrop-blur-xl border border-[#E6644C]/30 rounded-2xl flex flex-col gap-2"
         >
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-[7px] font-mono text-[#E6644C] uppercase tracking-tighter">NAV_MATRIX</span>
-            <span className="text-[7px] font-mono text-[#E6644C]">OK</span>
+          <div className="flex items-center gap-3">
+            <Cpu size={14} className="text-[#E6644C]" />
+            <span className="text-[9px] font-black uppercase tracking-widest text-white/80">Vercel Configurator</span>
           </div>
-          <div className="h-0.5 w-full bg-[#E6644C]/20 rounded-full overflow-hidden">
-            <motion.div animate={{ width: ['0%', '100%'] }} transition={{ duration: 1, repeat: Infinity }} className="h-full bg-[#E6644C]" />
-          </div>
+          <div className="text-[7px] font-mono text-[#E6644C]">DEPLOYMENT_READY: TRUE</div>
         </motion.div>
       )}
       {progress > 45 && (
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: [0, 1, 0.4], scale: [0.8, 1, 1] }}
-          className="absolute top-[40%] right-[10%] w-64 h-40 border border-white/20 rounded-[30px] bg-black/20 backdrop-blur-sm flex items-center justify-center"
+          animate={{ opacity: 1, scale: 1 }}
+          className="absolute top-[40%] right-[10%] w-56 h-32 border border-white/20 rounded-[30px] bg-black/40 backdrop-blur-md flex flex-col items-center justify-center p-4"
         >
-           <Focus size={32} className="text-[#E6644C] opacity-50" />
-           <div className="absolute top-2 right-2 text-[6px] font-mono text-white/40">COMP_RECOGNITION</div>
+           <Github size={24} className="text-white mb-2" />
+           <span className="text-[8px] font-black uppercase tracking-widest text-white/40">GitHub Actions CI/CD</span>
+           <div className="mt-2 w-full h-1 bg-white/5 rounded-full overflow-hidden">
+             <motion.div animate={{ width: ['0%', '100%'] }} transition={{ duration: 2, repeat: Infinity }} className="h-full bg-green-500" />
+           </div>
         </motion.div>
       )}
       {progress > 75 && (
         <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 1, 0.6] }}
-          className="absolute bottom-10 left-10 p-4 border border-green-500/30 bg-green-500/5 rounded-xl backdrop-blur-md"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute bottom-10 left-10 p-6 border border-green-500/30 bg-black/60 rounded-3xl backdrop-blur-xl"
         >
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-[8px] font-black text-green-500 uppercase tracking-widest">Logic Extraction Active</span>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-[10px] font-black text-white uppercase tracking-widest">Nümtema Foundry Active</span>
           </div>
-          <span className="text-[6px] font-mono text-green-500/60 uppercase tracking-tighter">Foundry Engine v3.2 Protocol</span>
+          <span className="text-[7px] font-mono text-white/40 uppercase tracking-tighter">Next.js 15 App Router Architecture Forged</span>
         </motion.div>
       )}
     </AnimatePresence>
@@ -123,7 +123,6 @@ export default function VisionDocApp() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isWorkspaceMaximized, setIsWorkspaceMaximized] = useState(false);
   const [isZipping, setIsZipping] = useState(false);
-  const [isPasting, setIsPasting] = useState(false);
 
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
@@ -159,12 +158,8 @@ export default function VisionDocApp() {
         if (items[i].type.indexOf('image') !== -1) {
           const blob = items[i].getAsFile();
           if (blob) {
-            setIsPasting(true);
             const reader = new FileReader();
-            reader.onload = (event) => {
-              runAnalysis(event.target?.result as string);
-              setTimeout(() => setIsPasting(false), 300);
-            };
+            reader.onload = (event) => runAnalysis(event.target?.result as string);
             reader.readAsDataURL(blob);
           }
         }
@@ -179,49 +174,49 @@ export default function VisionDocApp() {
     setIsZipping(true);
     const zip = new JSZip();
     Object.entries(analysisResult.projectFiles).forEach(([p, c]) => zip.file(p, c));
-    zip.file("README.md", `# Nümtema Foundry Artifact\n\n1. Install: \`npm install\`\n2. Dev: \`npm run dev\`\n3. Deploy: \`vercel\``);
+    zip.file("DEPLOYMENT_GUIDE.md", `# Nümtema Foundry SaaS Artifact\n\n## Stack\n- Next.js 15 (App Router)\n- Tailwind CSS 4\n- Lucide React\n- Framer Motion\n\n## Vercel Deploy\n\`npm install -g vercel\`\n\`vercel\`\n\n## GitHub Setup\n- Create repo\n- Link project\n- Done.`);
     const content = await zip.generateAsync({ type: "blob" });
     const url = window.URL.createObjectURL(content);
     const link = document.createElement("a");
-    link.href = url; link.download = "foundry-saas-core.zip"; link.click();
+    link.href = url; link.download = "foundry-complete-saas.zip"; link.click();
     setIsZipping(false);
   };
 
   return (
-    <div className={`min-h-screen transition-all duration-700 p-2 md:p-6 lg:p-10 ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-[#F9F9F9] text-[#1A1A1A]'}`}>
+    <div className={`min-h-screen transition-all duration-700 p-4 md:p-8 lg:p-12 ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-[#F9F9F9] text-[#1A1A1A]'}`}>
       <LayoutGroup>
         <motion.div 
           layout 
-          className={`mx-auto rounded-[50px] md:rounded-[70px] min-h-[92vh] flex flex-col p-4 md:p-12 lg:p-16 relative overflow-hidden max-w-[1700px] border shadow-[0_50px_100px_rgba(0,0,0,0.1)] transition-all duration-700 ${isDarkMode ? 'bg-white/[0.02] border-white/5 backdrop-blur-3xl' : 'bg-white border-gray-100'}`}
+          className={`mx-auto rounded-[60px] md:rounded-[80px] min-h-[92vh] flex flex-col p-6 md:p-12 lg:p-20 relative overflow-hidden max-w-[1700px] border shadow-[0_50px_150px_rgba(0,0,0,0.2)] transition-all duration-700 ${isDarkMode ? 'bg-white/[0.02] border-white/5 backdrop-blur-3xl' : 'bg-white border-gray-100'}`}
         >
           
           <AnimatePresence>
             {!isWorkspaceMaximized && (
-              <motion.header initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -100, opacity: 0 }} className="flex flex-col md:flex-row justify-between items-center gap-10 mb-16 lg:mb-24 z-30">
-                <div className="flex items-center gap-6 cursor-pointer group" onClick={() => setStep(AppStep.UPLOAD)}>
-                  <div className={`w-16 h-16 md:w-20 md:h-20 rounded-[28px] flex items-center justify-center font-bold text-3xl md:text-5xl shadow-2xl transition-all group-hover:scale-105 ${isDarkMode ? 'bg-[#E6644C] text-white' : 'bg-[#1A1A1A] text-white'}`}>F</div>
+              <motion.header initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -100, opacity: 0 }} className="flex flex-col md:flex-row justify-between items-center gap-12 mb-16 lg:mb-28 z-30">
+                <div className="flex items-center gap-8 cursor-pointer group" onClick={() => setStep(AppStep.UPLOAD)}>
+                  <div className={`w-16 h-16 md:w-24 md:h-24 rounded-[32px] flex items-center justify-center font-black text-4xl md:text-6xl shadow-2xl transition-all group-hover:scale-105 ${isDarkMode ? 'bg-[#E6644C] text-white' : 'bg-[#1A1A1A] text-white'}`}>F</div>
                   <div>
-                    <h1 className="text-2xl md:text-5xl font-black italic tracking-tighter leading-none">Foundry <span className="text-[#E6644C]">OS</span></h1>
-                    <p className={`text-[10px] md:text-[12px] font-black uppercase tracking-[0.6em] mt-1 ${isDarkMode ? 'text-white/30' : 'text-gray-400'}`}>Ideas to SaaS Deploy</p>
+                    <h1 className="text-3xl md:text-6xl font-black italic tracking-tighter leading-none mb-2">Foundry <span className="text-[#E6644C]">OS</span></h1>
+                    <p className={`text-[11px] md:text-[14px] font-black uppercase tracking-[0.6em] ${isDarkMode ? 'text-white/30' : 'text-gray-400'}`}>Ideas to SaaS Deploy</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-6">
                   <button 
                     onClick={toggleTheme}
-                    className={`p-5 rounded-full transition-all border ${isDarkMode ? 'bg-white/5 border-white/10 text-[#E6644C]' : 'bg-gray-100 border-gray-200 text-gray-500'} hover:scale-110 shadow-lg`}
+                    className={`p-6 rounded-full transition-all border shadow-xl ${isDarkMode ? 'bg-white/5 border-white/10 text-[#E6644C]' : 'bg-gray-100 border-gray-200 text-gray-500'} hover:scale-110`}
                   >
-                    {isDarkMode ? <Sun size={24} /> : <Moon size={24} />}
+                    {isDarkMode ? <Sun size={28} /> : <Moon size={28} />}
                   </button>
-                  <div className={`flex items-center gap-5 p-2 rounded-full border pr-10 transition-all shadow-xl ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-inner ${isDarkMode ? 'bg-white/10' : 'bg-white'}`}>
-                      <Activity size={24} className="text-[#E6644C]" />
+                  <div className={`flex items-center gap-6 p-2 rounded-full border pr-12 transition-all shadow-2xl ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-inner ${isDarkMode ? 'bg-white/10' : 'bg-white'}`}>
+                      <Server size={28} className="text-[#E6644C]" />
                     </div>
                     <div className="hidden sm:block">
-                      <div className={`text-[11px] font-black uppercase tracking-widest mb-0.5 ${isDarkMode ? 'text-white/30' : 'text-gray-300'}`}>Forge Status</div>
-                      <div className="text-sm font-bold text-green-500 flex items-center gap-2">Protocol Live</div>
+                      <div className={`text-[12px] font-black uppercase tracking-widest mb-1 ${isDarkMode ? 'text-white/30' : 'text-gray-300'}`}>System Forge</div>
+                      <div className="text-sm font-bold text-green-500 flex items-center gap-3">Protocol Optimized</div>
                     </div>
-                    <img src="https://i.pravatar.cc/150?u=foundry_master" className="w-14 h-14 rounded-full ml-4 shadow-2xl border-2 border-white/10" alt="Master" />
+                    <img src="https://i.pravatar.cc/150?u=numtema_master" className="w-16 h-16 rounded-full ml-4 shadow-2xl border-2 border-white/10" alt="Master" />
                   </div>
                 </div>
               </motion.header>
@@ -231,46 +226,46 @@ export default function VisionDocApp() {
           <main className="flex-1 flex flex-col relative z-20 min-h-0">
             <AnimatePresence mode="wait">
               {step === AppStep.UPLOAD && (
-                <motion.div key="upload" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: -40 }} className="w-full max-w-6xl mx-auto text-center py-10">
-                   <div className={`inline-block px-8 py-3 rounded-full mb-12 border shadow-lg transition-all ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'}`}>
-                     <span className="text-[12px] font-black uppercase tracking-[0.4em] text-[#E6644C] flex items-center gap-4">
-                       <CloudUpload size={16} /> Nümtema Advanced Foundry
+                <motion.div key="upload" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: -40 }} className="w-full max-w-7xl mx-auto text-center py-10">
+                   <div className={`inline-block px-10 py-4 rounded-full mb-16 border shadow-2xl transition-all ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'}`}>
+                     <span className="text-[14px] font-black uppercase tracking-[0.5em] text-[#E6644C] flex items-center gap-5">
+                       <Rocket size={18} /> Nümtema Foundry Mastery
                      </span>
                    </div>
-                   <h2 className={`text-6xl md:text-[10rem] font-black mb-16 leading-[0.85] tracking-tighter ${isDarkMode ? 'text-white/95' : 'text-[#1A1A1A]'}`}>
+                   <h2 className={`text-7xl md:text-[11rem] font-black mb-20 leading-[0.85] tracking-tighter ${isDarkMode ? 'text-white/95' : 'text-[#1A1A1A]'}`}>
                      Forge Vision. <br />
-                     <span className="text-transparent bg-clip-text bg-gradient-to-br from-[#E6644C] via-[#ff8e7a] to-[#E6644C] italic">Deploy SaaS Core.</span>
+                     <span className="text-transparent bg-clip-text bg-gradient-to-br from-[#E6644C] via-[#ff947f] to-[#E6644C] italic">Deploy Core SaaS.</span>
                    </h2>
                    
-                   <label className={`group relative w-full h-[500px] border-2 border-dashed rounded-[70px] flex flex-col items-center justify-center cursor-pointer transition-all ${isDarkMode ? 'bg-white/[0.03] border-white/10 hover:bg-white/[0.06]' : 'bg-gray-50 border-gray-200 hover:bg-white hover:shadow-2xl'} ${isPasting ? 'border-[#E6644C] scale-[0.98]' : ''}`}>
+                   <label className={`group relative w-full h-[550px] border-2 border-dashed rounded-[80px] flex flex-col items-center justify-center cursor-pointer transition-all ${isDarkMode ? 'bg-white/[0.04] border-white/10 hover:bg-white/[0.07]' : 'bg-gray-50 border-gray-200 hover:bg-white hover:shadow-2xl'}`}>
                      <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if(f){ const r = new FileReader(); r.onload = ev => runAnalysis(ev.target?.result as string); r.readAsDataURL(f); }}} />
-                     <motion.div animate={{ y: [0, -20, 0] }} transition={{ repeat: Infinity, duration: 4 }} className={`w-40 h-40 rounded-[45px] shadow-2xl flex items-center justify-center mb-12 group-hover:scale-110 transition-transform ${isDarkMode ? 'bg-white/5' : 'bg-white'}`}>
-                       <Upload size={56} className="text-[#E6644C]" />
+                     <motion.div animate={{ y: [0, -25, 0] }} transition={{ repeat: Infinity, duration: 4 }} className={`w-44 h-44 rounded-[50px] shadow-2xl flex items-center justify-center mb-16 group-hover:scale-110 transition-transform ${isDarkMode ? 'bg-white/5' : 'bg-white'}`}>
+                       <Upload size={64} className="text-[#E6644C]" />
                      </motion.div>
-                     <p className="font-black text-4xl mb-4 tracking-tight">Drop UI Screenshot</p>
-                     <p className={`text-[12px] font-bold uppercase tracking-[0.7em] opacity-60 ${isDarkMode ? 'text-white/40' : 'text-gray-400'}`}>FOUNDRY ENGINE V3.2 • NEXT.JS 15 READY</p>
+                     <p className="font-black text-5xl mb-6 tracking-tight">Drop Screenshot ou Colle</p>
+                     <p className={`text-[14px] font-bold uppercase tracking-[0.8em] opacity-60 ${isDarkMode ? 'text-white/40' : 'text-gray-400'}`}>VERCEL • GITHUB • NEXT.JS 15 ENGINE</p>
                    </label>
                 </motion.div>
               )}
 
               {step === AppStep.SCANNING && (
-                <motion.div key="scanning" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full max-w-7xl mx-auto text-center">
-                  <div className={`relative w-full aspect-video rounded-[70px] shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden border-[15px] transition-all ${isDarkMode ? 'border-white/5' : 'border-white'}`}>
-                    {uploadedImage && <img src={uploadedImage} className="w-full h-full object-cover" alt="Source" />}
+                <motion.div key="scanning" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full max-w-[1500px] mx-auto text-center">
+                  <div className={`relative w-full aspect-video rounded-[80px] shadow-[0_0_120px_rgba(0,0,0,0.6)] overflow-hidden border-[20px] transition-all ${isDarkMode ? 'border-white/5' : 'border-white'}`}>
+                    {uploadedImage && <img src={uploadedImage} className="w-full h-full object-cover" alt="SaaS Source" />}
                     <RealScanOverlay progress={scanProgress} />
                   </div>
-                  <div className="mt-20">
-                    <div className="flex justify-between max-w-md mx-auto mb-6 px-3">
-                      <span className="text-[12px] font-black text-[#E6644C] uppercase tracking-[0.4em]">Extracting Logic Matrix</span>
-                      <span className="text-[12px] font-black text-[#E6644C]">{Math.floor(scanProgress)}%</span>
+                  <div className="mt-24">
+                    <div className="flex justify-between max-w-lg mx-auto mb-8 px-4">
+                      <span className="text-[14px] font-black text-[#E6644C] uppercase tracking-[0.5em]">Forging SaaS Infrastructure</span>
+                      <span className="text-[14px] font-black text-[#E6644C]">{Math.floor(scanProgress)}%</span>
                     </div>
-                    <div className={`w-[500px] h-[4px] rounded-full mx-auto mb-14 overflow-hidden ${isDarkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
-                      <motion.div initial={{ width: 0 }} animate={{ width: `${scanProgress}%` }} className="h-full bg-gradient-to-r from-[#E6644C] to-white shadow-[0_0_20px_#E6644C]" />
+                    <div className={`w-[600px] h-[5px] rounded-full mx-auto mb-20 overflow-hidden ${isDarkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+                      <motion.div initial={{ width: 0 }} animate={{ width: `${scanProgress}%` }} className="h-full bg-gradient-to-r from-[#E6644C] to-white shadow-[0_0_30px_#E6644C]" />
                     </div>
-                    <div className="flex flex-wrap justify-center gap-8">
-                      {["Structural Mapping", "Color Clustering", "SaaS Logic", "Manifesto Creation"].map((s, i) => (
-                        <div key={s} className={`flex items-center gap-4 px-7 py-3 rounded-full text-[11px] font-black uppercase tracking-widest border transition-all ${scanProgress > (i+1)*25 ? 'bg-[#E6644C]/10 border-[#E6644C]/30 text-[#E6644C] shadow-lg' : 'bg-gray-100/50 border-gray-100 text-gray-300'}`}>
-                          {scanProgress > (i+1)*25 ? <Check size={14} /> : <RefreshCw size={14} className="animate-spin" />} {s}
+                    <div className="flex flex-wrap justify-center gap-10">
+                      {["UI Architecture", "Next.js 15 Logic", "Vercel Deploy Path", "GitHub Workflow"].map((s, i) => (
+                        <div key={s} className={`flex items-center gap-5 px-10 py-4 rounded-full text-[12px] font-black uppercase tracking-widest border transition-all ${scanProgress > (i+1)*25 ? 'bg-[#E6644C]/10 border-[#E6644C]/30 text-[#E6644C] shadow-2xl' : 'bg-gray-100/50 border-gray-100 text-gray-300'}`}>
+                          {scanProgress > (i+1)*25 ? <Check size={16} /> : <RefreshCw size={16} className="animate-spin" />} {s}
                         </div>
                       ))}
                     </div>
@@ -279,46 +274,46 @@ export default function VisionDocApp() {
               )}
 
               {step === AppStep.RESULT && analysisResult && (
-                <motion.div key="result" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} className="w-full h-full flex flex-col gap-12 min-h-0">
-                  <div className="flex flex-col md:flex-row justify-between items-end gap-10 shrink-0">
+                <motion.div key="result" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} className="w-full h-full flex flex-col gap-14 min-h-0">
+                  <div className="flex flex-col md:flex-row justify-between items-end gap-12 shrink-0">
                     <div>
-                      <div className="flex items-center gap-5 mb-8">
-                        <div className="px-5 py-2 bg-green-500/10 text-green-500 border border-green-500/20 rounded-full text-[11px] font-black uppercase tracking-widest flex items-center gap-4 shadow-sm">
-                          <ShieldCheck size={16}/> Forge Integrity 100%
+                      <div className="flex items-center gap-6 mb-10">
+                        <div className="px-6 py-2.5 bg-green-500/10 text-green-500 border border-green-500/20 rounded-full text-[13px] font-black uppercase tracking-widest flex items-center gap-5 shadow-2xl">
+                          <ShieldCheck size={20}/> SaaS Infrastructure Validated
                         </div>
-                        <div className={`text-[11px] font-black uppercase tracking-widest flex items-center gap-3 ${isDarkMode ? 'text-white/30' : 'text-gray-400'}`}>
-                           <Target size={14} /> Confidence: {analysisResult.confidence}%
+                        <div className={`text-[13px] font-black uppercase tracking-widest flex items-center gap-4 ${isDarkMode ? 'text-white/30' : 'text-gray-400'}`}>
+                           <Globe size={18} /> Forge Confidence: {analysisResult.confidence}%
                         </div>
                       </div>
-                      <h2 className={`text-6xl lg:text-9xl font-black tracking-tighter italic leading-none ${isDarkMode ? 'text-white' : 'text-[#1A1A1A]'}`}>Artifact Ready.</h2>
+                      <h2 className={`text-7xl lg:text-[10rem] font-black tracking-tighter italic leading-none ${isDarkMode ? 'text-white' : 'text-[#1A1A1A]'}`}>Artifact Ready.</h2>
                     </div>
-                    <div className="flex gap-5 mb-2">
-                      <Button variant="ghost" onClick={() => setStep(AppStep.UPLOAD)} className={`px-10 ${isDarkMode ? 'bg-white/5 border-white/10 text-white' : ''}`}><RefreshCw size={20} /> New Forge</Button>
-                      <Button onClick={downloadZip} className="px-16 shadow-[0_0_60px_rgba(230,100,76,0.4)] !bg-[#E6644C] hover:!bg-[#ff755c]" loading={isZipping}><Archive size={24} /> Deploy Core (.ZIP)</Button>
+                    <div className="flex gap-6 mb-4">
+                      <Button variant="ghost" onClick={() => setStep(AppStep.UPLOAD)} className={`px-12 py-6 text-lg ${isDarkMode ? 'bg-white/5 border-white/10 text-white' : ''}`}><RefreshCw size={24} /> New Forge</Button>
+                      <Button onClick={downloadZip} className="px-20 py-6 text-lg shadow-[0_0_80px_rgba(230,100,76,0.5)] !bg-[#E6644C] hover:!bg-[#ff7b63]" loading={isZipping}><Rocket size={28} /> Deploy SaaS (.ZIP)</Button>
                     </div>
                   </div>
 
-                  <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-12 min-h-0">
+                  <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-14 min-h-0">
                     <AnimatePresence>
                       {!isSidebarCollapsed && !isWorkspaceMaximized && (
                         <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -300, opacity: 0 }} className="lg:col-span-3 flex flex-col min-h-0">
-                          <div className={`p-10 rounded-[60px] flex flex-col h-full border transition-all shadow-2xl ${isDarkMode ? 'bg-white/[0.03] border-white/5' : 'bg-gray-50 border-gray-100'}`}>
-                             <div className="flex items-center justify-between mb-16">
-                               <h4 className="font-black text-[11px] tracking-[0.6em] uppercase text-[#E6644C] flex items-center gap-4"><Database size={18}/> Extracted DNA</h4>
-                               <button onClick={() => setIsSidebarCollapsed(true)} className={`p-3 rounded-2xl transition-all hidden lg:block ${isDarkMode ? 'hover:bg-white/10 text-white/30' : 'hover:bg-white text-gray-400 shadow-sm border border-gray-100'}`}><PanelLeftClose size={22}/></button>
+                          <div className={`p-12 rounded-[70px] flex flex-col h-full border transition-all shadow-2xl ${isDarkMode ? 'bg-white/[0.04] border-white/5' : 'bg-gray-50 border-gray-100'}`}>
+                             <div className="flex items-center justify-between mb-20">
+                               <h4 className="font-black text-[13px] tracking-[0.7em] uppercase text-[#E6644C] flex items-center gap-5"><Terminal size={22}/> SaaS Core DNA</h4>
+                               <button onClick={() => setIsSidebarCollapsed(true)} className={`p-4 rounded-2xl transition-all hidden lg:block ${isDarkMode ? 'hover:bg-white/10 text-white/30' : 'hover:bg-white text-gray-400 shadow-xl border border-gray-100'}`}><PanelLeftClose size={28}/></button>
                              </div>
-                             <div className="space-y-6 flex-1 overflow-y-auto pr-3 scrollbar-hide">
-                               <TokenItem iconKey="Palette" label="Brand Core" value={analysisResult.tokens.colors.primary} />
-                               <TokenItem iconKey="Layout" label="Radius DNA" value={analysisResult.tokens.radii.card} />
-                               <TokenItem iconKey="Type" label="Typography" value={analysisResult.tokens.typography.fontFamily} />
+                             <div className="space-y-8 flex-1 overflow-y-auto pr-4 scrollbar-hide">
+                               <TokenItem iconKey="Palette" label="Brand Identity" value={analysisResult.tokens.colors.primary} />
+                               <TokenItem iconKey="Layout" label="Radius Scaling" value={analysisResult.tokens.radii.card} />
+                               <TokenItem iconKey="Type" label="Font Protocol" value={analysisResult.tokens.typography.fontFamily} />
                                <TokenItem iconKey="Maximize2" label="Foundry Grid" value={analysisResult.tokens.spacing.gap} />
                                
-                               <div className={`pt-12 border-t mt-12 transition-all ${isDarkMode ? 'border-white/5' : 'border-gray-100'}`}>
-                                 <p className={`text-[11px] font-black uppercase tracking-[0.5em] mb-5 ${isDarkMode ? 'text-white/20' : 'text-gray-300'}`}>SaaS Compatibility</p>
-                                 <div className="grid grid-cols-5 gap-2.5">
-                                   {[1,1,1,1,0].map((v, i) => (
-                                      <div key={i} className={`h-1.5 rounded-full ${v ? 'bg-[#E6644C]' : (isDarkMode ? 'bg-white/10' : 'bg-gray-200')}`} />
-                                   ))}
+                               <div className={`pt-16 border-t mt-16 transition-all ${isDarkMode ? 'border-white/5' : 'border-gray-100'}`}>
+                                 <p className={`text-[13px] font-black uppercase tracking-[0.6em] mb-8 ${isDarkMode ? 'text-white/20' : 'text-gray-300'}`}>Deployment Synergy</p>
+                                 <div className="flex items-center gap-6">
+                                   <div className={`p-4 rounded-2xl ${isDarkMode ? 'bg-white/5' : 'bg-white shadow-sm'}`}><Box className="text-[#E6644C]" size={20} /></div>
+                                   <div className={`p-4 rounded-2xl ${isDarkMode ? 'bg-white/5' : 'bg-white shadow-sm'}`}><Github className="text-white" size={20} /></div>
+                                   <div className={`p-4 rounded-2xl ${isDarkMode ? 'bg-white/5' : 'bg-white shadow-sm'}`}><Layers className="text-blue-400" size={20} /></div>
                                  </div>
                                </div>
                              </div>
@@ -327,44 +322,44 @@ export default function VisionDocApp() {
                       )}
                     </AnimatePresence>
 
-                    <div className={`${isWorkspaceMaximized ? 'fixed inset-12 z-[100]' : (isSidebarCollapsed ? 'lg:col-span-12' : 'lg:col-span-9')} flex flex-col gap-10 transition-all duration-700 min-h-0`}>
+                    <div className={`${isWorkspaceMaximized ? 'fixed inset-16 z-[100]' : (isSidebarCollapsed ? 'lg:col-span-12' : 'lg:col-span-9')} flex flex-col gap-12 transition-all duration-700 min-h-0`}>
                       <div className="flex items-center justify-between shrink-0">
-                        <div className={`flex gap-4 p-2.5 border rounded-[35px] shadow-2xl transition-all ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-100 border-gray-200'}`}>
+                        <div className={`flex gap-6 p-3.5 border rounded-[45px] shadow-2xl transition-all ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-100 border-gray-200'}`}>
                           {isSidebarCollapsed && !isWorkspaceMaximized && (
-                            <button onClick={() => setIsSidebarCollapsed(false)} className={`px-6 py-4 rounded-full hidden lg:block ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-white shadow-sm'}`}><PanelLeftOpen size={22}/></button>
+                            <button onClick={() => setIsSidebarCollapsed(false)} className={`px-8 py-5 rounded-full hidden lg:block ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-white shadow-xl'}`}><PanelLeftOpen size={28}/></button>
                           )}
                           {[
-                            { id: ResultTab.MISSION, label: 'Manifesto', icon: Terminal },
-                            { id: ResultTab.INFRA, label: 'Artifact Files', icon: FolderTree },
-                            { id: ResultTab.RULES, label: 'Cursor Rules', icon: Target },
-                            { id: ResultTab.PREVIEW, label: 'Core Preview', icon: Eye }
+                            { id: ResultTab.MISSION, label: 'SaaS Manifesto', icon: Terminal },
+                            { id: ResultTab.INFRA, label: 'Next.js 15 Files', icon: FolderTree },
+                            { id: ResultTab.RULES, label: 'Forge Rules (.MDC)', icon: Target },
+                            { id: ResultTab.PREVIEW, label: 'Success View', icon: Eye }
                           ].map(t => (
-                            <button key={t.id} onClick={() => setActiveTab(t.id as ResultTab)} className={`px-10 py-5 rounded-[26px] text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-4 ${activeTab === t.id ? 'bg-[#E6644C] text-white shadow-[0_0_30px_rgba(230,100,76,0.4)]' : (isDarkMode ? 'text-white/40 hover:text-white hover:bg-white/5' : 'text-gray-400 hover:text-[#1A1A1A] hover:bg-white shadow-sm')}`}>
-                              <t.icon size={20} /> {t.label}
+                            <button key={t.id} onClick={() => setActiveTab(t.id as ResultTab)} className={`px-12 py-6 rounded-[32px] text-[13px] font-black uppercase tracking-[0.3em] transition-all flex items-center gap-5 ${activeTab === t.id ? 'bg-[#E6644C] text-white shadow-[0_0_40px_rgba(230,100,76,0.5)]' : (isDarkMode ? 'text-white/40 hover:text-white hover:bg-white/5' : 'text-gray-400 hover:text-[#1A1A1A] hover:bg-white shadow-xl')}`}>
+                              <t.icon size={24} /> {t.label}
                             </button>
                           ))}
                         </div>
-                        <button onClick={() => setIsWorkspaceMaximized(!isWorkspaceMaximized)} className={`p-6 border rounded-full shadow-2xl transition-all hover:scale-110 ${isDarkMode ? 'bg-white/5 border-white/10 text-[#E6644C]' : 'bg-white border-gray-100 text-[#E6644C]'}`}>
-                          {isWorkspaceMaximized ? <Minimize2 size={28} /> : <Maximize2 size={28} />}
+                        <button onClick={() => setIsWorkspaceMaximized(!isWorkspaceMaximized)} className={`p-8 border rounded-full shadow-2xl transition-all hover:scale-110 ${isDarkMode ? 'bg-white/5 border-white/10 text-[#E6644C]' : 'bg-white border-gray-100 text-[#E6644C]'}`}>
+                          {isWorkspaceMaximized ? <Minimize2 size={36} /> : <Maximize2 size={36} />}
                         </button>
                       </div>
 
-                      <div className={`flex-1 shadow-[0_60px_120px_rgba(0,0,0,0.4)] rounded-[60px] overflow-hidden flex flex-col min-h-0 relative border transition-all duration-700 ${isDarkMode ? 'bg-[#050505] border-white/5' : 'bg-white border-gray-100'}`}>
+                      <div className={`flex-1 shadow-[0_80px_160px_rgba(0,0,0,0.5)] rounded-[80px] overflow-hidden flex flex-col min-h-0 relative border transition-all duration-700 ${isDarkMode ? 'bg-[#030303] border-white/5' : 'bg-white border-gray-100'}`}>
                         <AnimatePresence mode="wait">
-                          <motion.div key={activeTab} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="h-full flex flex-col overflow-hidden">
+                          <motion.div key={activeTab} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.02 }} className="h-full flex flex-col overflow-hidden">
                             {activeTab === ResultTab.MISSION && <CodePreview isDark={isDarkMode} title="FOUNDRY_MANIFESTO.md" code={analysisResult.projectFiles['FOUNDRY_MANIFESTO.md'] || ''} />}
                             {activeTab === ResultTab.INFRA && <SourceExplorer isDark={isDarkMode} files={analysisResult.projectFiles} />}
                             {activeTab === ResultTab.RULES && <CodePreview isDark={isDarkMode} title=".cursor/rules/foundry-core.mdc" code={analysisResult.cursorRules} />}
                             {activeTab === ResultTab.PREVIEW && (
                                <div className={`h-full flex flex-col items-center justify-center relative overflow-hidden ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
-                                 <div className={`absolute inset-0 bg-[radial-gradient(#E6644C15_1.5px,transparent_1.5px)] [background-size:50px_50px]`} />
-                                 <div className={`relative p-20 rounded-[70px] shadow-2xl border max-w-2xl text-center z-10 mx-8 ${isDarkMode ? 'bg-white/[0.02] border-white/5' : 'bg-white border-gray-200'}`}>
-                                   <div className="w-28 h-28 rounded-[35px] bg-green-500/10 text-green-500 flex items-center justify-center mx-auto mb-10 shadow-2xl"><Check size={56} /></div>
-                                   <h3 className={`text-5xl font-black tracking-tighter mb-8 ${isDarkMode ? 'text-white' : 'text-[#1A1A1A]'}`}>Artifact Integrity Verified</h3>
-                                   <p className={`mb-12 font-medium text-xl leading-relaxed ${isDarkMode ? 'text-white/40' : 'text-gray-500'}`}>Nümtema Foundry a injecté avec succès l'architecture SaaS complète. Prêt pour Vercel & GitHub.</p>
-                                   <div className="flex gap-6 justify-center">
-                                      <div className={`px-8 py-4 rounded-[22px] text-[11px] font-black uppercase border tracking-widest ${isDarkMode ? 'bg-white/5 border-white/10 text-white/30' : 'bg-gray-50 border-gray-200 text-gray-400 shadow-sm'}`}>Foundry v3.2 Core</div>
-                                      <div className={`px-8 py-4 rounded-[22px] text-[11px] font-black uppercase border tracking-widest ${isDarkMode ? 'bg-white/5 border-white/10 text-white/30' : 'bg-gray-50 border-gray-200 text-gray-400 shadow-sm'}`}>SaaS Architecture OK</div>
+                                 <div className={`absolute inset-0 bg-[radial-gradient(#E6644C20_1.5px,transparent_1.5px)] [background-size:60px_60px]`} />
+                                 <div className={`relative p-24 rounded-[80px] shadow-2xl border max-w-3xl text-center z-10 mx-10 ${isDarkMode ? 'bg-white/[0.03] border-white/5' : 'bg-white border-gray-200 shadow-2xl'}`}>
+                                   <div className="w-32 h-32 rounded-[40px] bg-green-500/10 text-green-500 flex items-center justify-center mx-auto mb-12 shadow-3xl"><Check size={64} /></div>
+                                   <h3 className={`text-6xl font-black tracking-tighter mb-10 ${isDarkMode ? 'text-white' : 'text-[#1A1A1A]'}`}>Protocol Deployment Ready</h3>
+                                   <p className={`mb-16 font-medium text-2xl leading-relaxed ${isDarkMode ? 'text-white/40' : 'text-gray-500'}`}>Nümtema Foundry a injecté l'architecture SaaS complète avec intégration Vercel & GitHub. Téléchargez votre artifact et lancez le déploiement.</p>
+                                   <div className="flex gap-8 justify-center">
+                                      <div className={`px-10 py-5 rounded-[28px] text-[13px] font-black uppercase border tracking-widest ${isDarkMode ? 'bg-white/5 border-white/10 text-white/30' : 'bg-gray-50 border-gray-200 text-gray-400 shadow-2xl'}`}>Foundry v3.2 SaaS Core</div>
+                                      <div className={`px-10 py-5 rounded-[28px] text-[13px] font-black uppercase border tracking-widest ${isDarkMode ? 'bg-white/5 border-white/10 text-white/30' : 'bg-gray-50 border-gray-200 text-gray-400 shadow-2xl'}`}>Next.js 15 Ready</div>
                                    </div>
                                  </div>
                                </div>
@@ -381,24 +376,24 @@ export default function VisionDocApp() {
           
           <AnimatePresence>
             {!isWorkspaceMaximized && (
-              <motion.footer initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={`mt-24 pt-12 border-t flex flex-col md:flex-row justify-between items-center gap-10 text-[11px] font-black uppercase tracking-[0.7em] relative z-30 transition-all ${isDarkMode ? 'border-white/5 text-white/20' : 'border-gray-100 text-gray-300'}`}>
-                <div className="flex items-center gap-5">
-                  <div className="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.6)] animate-pulse"></div> 
-                  Forge Operational • Nümtema Foundry OS
+              <motion.footer initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={`mt-32 pt-16 border-t flex flex-col md:flex-row justify-between items-center gap-14 text-[13px] font-black uppercase tracking-[0.8em] relative z-30 transition-all ${isDarkMode ? 'border-white/5 text-white/20' : 'border-gray-100 text-gray-300'}`}>
+                <div className="flex items-center gap-6">
+                  <div className="w-4 h-4 rounded-full bg-green-500 shadow-[0_0_20px_rgba(34,197,94,0.8)] animate-pulse"></div> 
+                  Forge Operational • Vercel Verified • Nümtema Foundry OS
                 </div>
-                <div className="flex gap-16 font-bold italic text-sm opacity-40 hover:opacity-100 transition-opacity cursor-default">
+                <div className="flex gap-20 font-bold italic text-lg opacity-40 hover:opacity-100 transition-opacity cursor-default tracking-tighter">
                   Nümtema Foundry
                 </div>
-                <div className="flex gap-12">
+                <div className="flex gap-16">
                   <a href="#" className="hover:text-[#E6644C] transition-colors">Manifesto</a>
-                  <a href="#" className="hover:text-[#E6644C] transition-colors">OS Config</a>
+                  <a href="#" className="hover:text-[#E6644C] transition-colors">Infrastructure</a>
                   <a href="#" className="hover:text-[#E6644C] transition-colors">Security</a>
                 </div>
               </motion.footer>
             )}
           </AnimatePresence>
 
-          {isWorkspaceMaximized && <div className="fixed inset-0 bg-black/90 backdrop-blur-3xl z-[90]" onClick={() => setIsWorkspaceMaximized(false)} />}
+          {isWorkspaceMaximized && <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[90]" onClick={() => setIsWorkspaceMaximized(false)} />}
         </motion.div>
       </LayoutGroup>
       <VoiceAssistant />
@@ -412,12 +407,12 @@ const CodePreview: React.FC<{ code: string, title: string, isDark?: boolean }> =
   const [copied, setCopied] = useState(false);
   const copy = () => { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 2000); };
   return (
-    <div className={`flex flex-col h-full transition-colors duration-700 ${isDark ? 'bg-[#030303]' : 'bg-[#FAFAFA]'}`}>
-      <div className={`flex justify-between items-center px-12 py-10 border-b transition-all ${isDark ? 'bg-white/[0.02] border-white/5' : 'bg-white border-gray-100 shadow-sm'}`}>
-        <span className={`text-[11px] font-mono tracking-[0.7em] uppercase flex items-center gap-5 ${isDark ? 'text-white/20' : 'text-gray-400'}`}><Binary size={20} /> {title}</span>
-        <button onClick={copy} className={`transition-all p-5 rounded-[22px] border ${isDark ? 'text-white/30 hover:text-white hover:bg-white/5 border-white/5' : 'text-gray-400 hover:text-[#1A1A1A] hover:bg-white border-gray-100 shadow-sm'}`}>{copied ? <Check size={28} className="text-green-400" /> : <Copy size={28} />}</button>
+    <div className={`flex flex-col h-full transition-colors duration-700 ${isDark ? 'bg-[#020202]' : 'bg-[#FAFAFA]'}`}>
+      <div className={`flex justify-between items-center px-16 py-12 border-b transition-all ${isDark ? 'bg-white/[0.02] border-white/5' : 'bg-white border-gray-100 shadow-xl'}`}>
+        <span className={`text-[13px] font-mono tracking-[0.8em] uppercase flex items-center gap-6 ${isDark ? 'text-white/20' : 'text-gray-400'}`}><Binary size={24} /> {title}</span>
+        <button onClick={copy} className={`transition-all p-6 rounded-[28px] border ${isDark ? 'text-white/30 hover:text-white hover:bg-white/5 border-white/5' : 'text-gray-400 hover:text-[#1A1A1A] hover:bg-white border-gray-100 shadow-xl'}`}>{copied ? <Check size={32} className="text-green-400" /> : <Copy size={32} />}</button>
       </div>
-      <pre className={`p-14 text-sm font-mono overflow-auto scrollbar-hide flex-1 leading-relaxed selection:bg-[#E6644C] selection:text-white transition-all ${isDark ? 'text-white/60' : 'text-gray-600'}`}><code>{code}</code></pre>
+      <pre className={`p-16 text-md font-mono overflow-auto scrollbar-hide flex-1 leading-relaxed selection:bg-[#E6644C] selection:text-white transition-all ${isDark ? 'text-white/60' : 'text-gray-600'}`}><code>{code}</code></pre>
     </div>
   );
 };
@@ -428,12 +423,12 @@ const SourceExplorer: React.FC<{ files: Record<string, string>, isDark?: boolean
 
   return (
     <div className="flex flex-col md:flex-row h-full">
-      <div className={`w-full md:w-96 border-r p-10 overflow-y-auto shrink-0 transition-all ${isDark ? 'bg-white/[0.01] border-white/5' : 'bg-gray-50 border-gray-100'}`}>
-        <h5 className={`text-[11px] font-black uppercase tracking-[0.6em] mb-10 ${isDark ? 'text-white/10' : 'text-gray-300'}`}>Registry Codex</h5>
-        <div className="space-y-3">
+      <div className={`w-full md:w-[450px] border-r p-12 overflow-y-auto shrink-0 transition-all ${isDark ? 'bg-white/[0.01] border-white/5' : 'bg-gray-50 border-gray-100'}`}>
+        <h5 className={`text-[13px] font-black uppercase tracking-[0.7em] mb-12 ${isDark ? 'text-white/10' : 'text-gray-300'}`}>Artifact Codex</h5>
+        <div className="space-y-4">
           {filePaths.map(path => (
-            <button key={path} onClick={() => setSelectedFile(path)} className={`w-full text-left px-6 py-5 rounded-[22px] text-[12px] transition-all flex items-center gap-5 ${selectedFile === path ? 'bg-[#E6644C] text-white font-bold shadow-2xl scale-[1.02]' : (isDark ? 'text-white/30 hover:text-white/60 hover:bg-white/5' : 'text-gray-400 hover:text-[#1A1A1A] hover:bg-white border-gray-100 shadow-sm')}`}>
-              <FileCode size={22} /> {path.split('/').pop()}
+            <button key={path} onClick={() => setSelectedFile(path)} className={`w-full text-left px-8 py-6 rounded-[28px] text-[14px] transition-all flex items-center gap-6 ${selectedFile === path ? 'bg-[#E6644C] text-white font-bold shadow-3xl scale-[1.03]' : (isDark ? 'text-white/30 hover:text-white/70 hover:bg-white/5' : 'text-gray-400 hover:text-[#1A1A1A] hover:bg-white border-gray-100 shadow-2xl')}`}>
+              <FileCode size={24} /> {path.split('/').pop()}
             </button>
           ))}
         </div>

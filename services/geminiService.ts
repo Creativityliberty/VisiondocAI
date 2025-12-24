@@ -51,21 +51,22 @@ export const analyzeUIScreenshot = async (base64Image: string): Promise<{
           },
           {
             text: `Tu es l'Intelligence Suprême de Nümtema Foundry. 
-            MISSION : Transformer cette capture d'écran en un SaaS complet, prêt pour VERCEL et GITHUB.
+            MISSION : Transformer cette capture d'écran en un SaaS complet, robuste et prêt pour le déploiement.
             
-            1. ANALYSE PROFONDE : Détecte les composants (Navbar, Hero, Bento, Stats, Testimonials, Footer).
-            2. LOGIQUE MÉTIER : Déduis le but du SaaS (Fintech, EdTech, Tool, etc.) et prépare la structure de données.
-            3. DÉPLOIEMENT : Génère un guide 'FOUNDRY_MANIFESTO.md' incluant :
-               - Commandes de déploiement Vercel.
-               - Workflow GitHub Actions pour le CI/CD.
-               - Instructions pour lier le domaine.
-            4. STRUCTURE PROJET :
-               - 'app/layout.tsx' & 'app/page.tsx' (Next.js 15 App Router)
-               - 'components/foundry-ui/' (Composants reconstruits avec Tailwind)
-               - 'data/config.ts' (Metadata et Tokens extraits)
-               - '.cursor/rules/foundry.mdc' (Instructions pour l'IA dev)
+            1. ANALYSE PROFONDE : Détecte tous les composants UI et la hiérarchie.
+            2. LOGIQUE SAAS : Déduis le but du projet et génère une architecture 'Next.js 15 App Router'.
+            3. DÉPLOIEMENT TOTAL (CUMULÉ) :
+               - Guide de déploiement VERCEL (CLI & Dashboard).
+               - Configuration GITHUB (Workflow CI/CD).
+               - Setup Tailwind CSS 4.
+            4. LIVRABLES :
+               - 'FOUNDRY_MANIFESTO.md' : La bible du projet.
+               - '.cursor/rules/foundry-core.mdc' : Les règles pour l'IA.
+               - 'app/layout.tsx', 'app/page.tsx' : Code source reconstruit.
+               - 'components/foundry-ui/' : Librairie de composants Tailwind.
+               - 'package.json' : Dépendances nécessaires.
             
-            Réponds EXCLUSIVEMENT en JSON.`
+            Réponds EXCLUSIVEMENT au format JSON.`
           }
         ]
       }
@@ -121,4 +122,23 @@ export const analyzeUIScreenshot = async (base64Image: string): Promise<{
   filesRecord['.cursor/rules/foundry-core.mdc'] = parsed.rules;
 
   return { ...parsed, projectFiles: filesRecord };
+};
+
+export const chatWithUI = async (prompt: string, base64Image?: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const parts: any[] = [{ text: prompt }];
+  if (base64Image) {
+    parts.push({
+      inlineData: { mimeType: getMimeType(base64Image), data: getBase64Data(base64Image) }
+    });
+  }
+  const response = await ai.models.generateContent({
+    model: "gemini-3-pro-preview",
+    contents: [{ parts }],
+    config: {
+      systemInstruction: "Tu es le Maître de Forge de Nümtema Foundry. Tu aides à déployer des SaaS basés sur les designs extraits avec Vercel, Next.js et GitHub.",
+      thinkingConfig: { thinkingBudget: 8192 }
+    }
+  });
+  return response.text || "Foundry Node Idle...";
 };
